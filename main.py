@@ -39,11 +39,25 @@ def Conditions(file):
     return conditions
 
 
+def CSP(mode):
+    print("CSP Search")
+
+
+
 def main():
     file1 = sys.argv[1]
     file2 = sys.argv[2]
+    mode = sys.argv[3]
+
+    if mode == 'none':
+        mode = sys.argv[3]
+    elif mode == 'fc':
+        mode = sys.argv[3]
+    else:
+        raise ValueError("Third argument can only be 'none': backtracking, or 'fc': forward checking.")
+
     print("Variables: ", Variables(file1))
     print("Conditions: ", Conditions(file2))
-
+    print("Mode: ", mode)
 
 main()
