@@ -45,19 +45,20 @@ def CSP(mode):
 
 
 def main():
-    file1 = sys.argv[1]
-    file2 = sys.argv[2]
-    mode = sys.argv[3]
+    file1 = sys.argv[1]  # holds file that contains variables(Instructions Page 3 (1))
+    file2 = sys.argv[2]  # holds file that contains conditions(Instructions Page 3 (2))
+    mode = sys.argv[3]   # holds method: 'none' - backtracking, 'fc' - forward checking(Instructions Page 3 (3))
 
-    if mode == 'none':
-        mode = sys.argv[3]
-    elif mode == 'fc':
-        mode = sys.argv[3]
+    # checks for valid mode input
+    if mode == 'none' or mode == 'fc':
+        mode = mode
+    # if third argument is anything other than 'none' or 'fc' throw ValueError
     else:
         raise ValueError("Third argument can only be 'none': backtracking, or 'fc': forward checking.")
 
-    print("Variables: ", Variables(file1))
-    print("Conditions: ", Conditions(file2))
-    print("Mode: ", mode)
+    print("Variables: ", Variables(file1))  # for debug purposes
+    print("Conditions: ", Conditions(file2))  # for debug purposes
+    print("Mode: ", mode)  # for debug purposes
+
 
 main()
