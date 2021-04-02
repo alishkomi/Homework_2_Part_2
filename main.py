@@ -62,106 +62,76 @@ def chooseVariable(variables, conditions):
                                              conditions[key]]
                 else:
                     variable['Variable'] == variable['Variable']
-    order.append(variable['Variable'][0])
-    return variable['Variable'][
-        0]  # returns a dictionary: {'Variable': ['Variable Name'(str), Num. of legal values(int), [Legal Values](list), Num. of Conditions(int), ]Conditions](list)}
-    # return listofVar = [F,E,A,B,C,D]
+        order.append(variable['Variable'][0])
+    return variable['Variable'][0]  # returns variable name as  string
 
 
-1
-pick
-a
-variable
-2
-pick
-a
-value
-3
-update
-domains
-list[F, E, A, B, C, D]
-
-4
-next
-variable(updated(variables(domains)), conditions())
-5
-pick
-a
-variable
-...
-
-
-# example: choose least constraining value for F. chooseValue(F, variables, conditions)
 def chooseValue(varName, variables, conditions):
     legalValue = {}
+    varDomain = variables[varName]
 
-    for condition in conditions[varName]:  # ['B > F', 'F > D', 'F = A'] 'var1 operation var2'
-        var1 = condition[0]  # conditions['D'] = ['A > D', 'D < E'] A = 1,2,3 D = 1,2,3,4,5 E = 1,2,3,4,5
-        var2 = condition[4]  # B: 1,2,3,4,5 F:1,2 D: 1,2,3,4,5
-        operation = condition[2]
-        var1domain = variables[var1]
-        var2domain = variables[var2]
+    for value in varDomain:
+        legalValue[value] = 0
 
-        if operation == '>':  # if condition is var 1 > var 2
+        for condition in conditions[varName]:
+            var1 = condition[0]
+            var2 = condition[4]
+            operation = condition[2]
+            var1domain = variables[var1]
+            var2domain = variables[var2]
+
             if var1 == varName:  # if var1 is the variable we are finding the number for
                 var2domainSize = 0
-                for value in var1domain:
+
+                if operation == '>':  # if condition is var 1 > var 2
                     var2domainSizeCurrent = len([x for x in var2domain if x < value])
                     if var2domainSizeCurrent > var2domainSize:
                         var2domainSize = var2domainSizeCurrent
-                        legalValue[value] = var2domainSize
-            elif var2 == varName:  # B > F;  B: 1 2 3 4 5   F: 1 2
-                var1domainSize = 0
-                for value in var2domain:
-                    var1domainSizeCurrent = len([x for x in var1domain if x < value])
-                    if var1domainSizeCurrent > var1domainSize:
-                        var1domainSize = var1domainSizeCurrent
-                        legalValue[value] = var1domainSize
-            else:
-                print("Error")
-            print("> operation", legalValue)
+                        legalValue[value] = legalValue[value] + var2domainSize
 
-        elif operation == '=':
-            if var1 == varName:
-                var2domainSize = 0
-                for value in var1domain:
+                elif operation == '=':
                     var2domainSizeCurrent = len([x for x in var2domain if x == value])
                     if var2domainSizeCurrent > var2domainSize:
                         var2domainSize = var2domainSizeCurrent
-                        legalValue[value] = var2domainSize
+                        legalValue[value] = legalValue[value] + var2domainSize
 
-            elif var2 == varName:  # B > F;  B: 1 2 3 4 5   F: 1 2
-                var1domainSize = 0
-            for value in var2domain:
-                var1domainSizeCurrent = len([x for x in var1domain if x == value])
-                if var1domainSizeCurrent > var1domainSize:
-                    var1domainSize = var1domainSizeCurrent
-                    legalValue[value] = var1domainSize
-            else:
-                print("Error")
-            print("= operation", legalValue)
-
-        elif condition[2] == '<':
-            if var1 == varName:
-                var2domainSize = 0
-                for value in var1domain:
+                elif operation == '<':
                     var2domainSizeCurrent = len([x for x in var2domain if x > value])
                     if var2domainSizeCurrent > var2domainSize:
                         var2domainSize = var2domainSizeCurrent
-                        legalValue[value] = var2domainSize
+                        legalValue[value] = legalValue[value] + var2domainSize
 
-            elif var2 == varName:  # B > F;  B: 1 2 3 4 5   F: 1 2
+                else:
+                    print("Error")
+
+            elif var2 == varName:
                 var1domainSize = 0
-                for value in var2domain:
+
+                if operation == '>':  # if condition is var 1 > var 2
+                    var1domainSizeCurrent = len([x for x in var1domain if x > value])
+                    if var1domainSizeCurrent > var1domainSize:
+                        var1domainSize = var1domainSizeCurrent
+                        legalValue[value] = legalValue[value] + var1domainSize
+
+                elif operation == '=':
+                    var1domainSizeCurrent = len([x for x in var1domain if x == value])
+                    if var1domainSizeCurrent > var1domainSize:
+                        var1domainSize = var1domainSizeCurrent
+                        legalValue[value] = legalValue[value] + var1domainSize
+
+                elif operation == '<':
                     var1domainSizeCurrent = len([x for x in var1domain if x < value])
                     if var1domainSizeCurrent > var1domainSize:
                         var1domainSize = var1domainSizeCurrent
-                        legalValue[value] = var1domainSize
+                        legalValue[value] = legalValue[value] + var1domainSize
+                else:
+                    print("Error")
+
             else:
                 print("Error")
-            print("< operation", legalValue)
-        else:
-            print("Error")
+
+    # for legal
+    return legalValue
 
 
 def CSP(variables, conditions, mode):
@@ -171,8 +141,8 @@ def CSP(variables, conditions, mode):
     # sorted_variables = sorted(conditions)
 
 
-def fc(order, variables, conditions):
-    for var in order:
+# def fc(order, variables, conditions):
+# for var in order:
 
 
 def main():
@@ -189,7 +159,8 @@ def main():
 
     CSP(Variables(file1), Conditions(file2), mode)
     most_constrained_variable = chooseVariable(Variables(file1), Conditions(file2))
-    print("Most constrained variable: ", most_constrained_variable['Variable'][0])
+    print("Most constrained variable: ", most_constrained_variable)
+    print(chooseValue('C', Variables(file1), Conditions(file2)))
 
 
 main()
