@@ -95,21 +95,18 @@ def chooseValue(varName, domain, conditions):
                     if var2domainSizeCurrent > var2domainSize:
                         var2domainSize = var2domainSizeCurrent
                         legalValue[value] = legalValue[value] + var2domainSize
-                        updatedDomain[var2] = [y for y in var2domain if y < value]
 
                 elif operation == '=':
                     var2domainSizeCurrent = len([x for x in var2domain if x == value])
                     if var2domainSizeCurrent > var2domainSize:
                         var2domainSize = var2domainSizeCurrent
                         legalValue[value] = legalValue[value] + var2domainSize
-                        updatedDomain[var2] = [y for y in var2domain if y == value]
 
                 elif operation == '<':
                     var2domainSizeCurrent = len([x for x in var2domain if x > value])
                     if var2domainSizeCurrent > var2domainSize:
                         var2domainSize = var2domainSizeCurrent
                         legalValue[value] = legalValue[value] + var2domainSize
-                        updatedDomain[var2] = [y for y in var2domain if y > value]
                 else:
                     print("Error")
 
@@ -121,19 +118,16 @@ def chooseValue(varName, domain, conditions):
                     if var1domainSizeCurrent > var1domainSize:
                         var1domainSize = var1domainSizeCurrent
                         legalValue[value] = legalValue[value] + var1domainSize
-                        updatedDomain[var1] = [y for y in var1domain if y > value]
                 elif operation == '=':
                     var1domainSizeCurrent = len([x for x in var1domain if x == value])
                     if var1domainSizeCurrent > var1domainSize:
                         var1domainSize = var1domainSizeCurrent
                         legalValue[value] = legalValue[value] + var1domainSize
-                        updatedDomain[var1] = [y for y in var1domain if y == value]
                 elif operation == '<':
                     var1domainSizeCurrent = len([x for x in var1domain if x < value])
                     if var1domainSizeCurrent > var1domainSize:
                         var1domainSize = var1domainSizeCurrent
                         legalValue[value] = legalValue[value] + var1domainSize
-                        updatedDomain[var1] = [y for y in var1domain if y < value]
                 else:
                     print("Error")
 
@@ -160,6 +154,36 @@ def chooseValue(varName, domain, conditions):
                 highestnum = currentnum
                 solution = currentval
                 updatedDomain[varName] = [solution]
+
+    for condition in conditions[varName]:
+        var1 = condition[0]
+        var2 = condition[4]
+        operation = condition[2]
+
+        if var1 == varName:  # if var1 is the variable we are finding the number for
+            var2domain = domain[var2]
+            var1domain = updatedDomain[varName][0]
+            if operation == '>':  # if condition is var 1 > var 2
+                updatedDomain[var2] = [x for x in var2domain if x < var1domain]
+            elif operation == '=':
+                updatedDomain[var2] = [x for x in var2domain if x == var1domain]
+            elif operation == '<':
+                updatedDomain[var2] = [x for x in var2domain if x > var1domain]
+            else:
+                print("Error")
+        elif var2 == varName:
+            var1domain = updatedDomain[varName][0]
+            var2domain = domain[var2]
+            if operation == '>':  # if condition is var 1 > var 2
+                updatedDomain[var1] = [x for x in var2domain if x > var1domain]
+            elif operation == '=':
+                updatedDomain[var1] = [x for x in var2domain if x == var1domain]
+            elif operation == '<':
+                updatedDomain[var1] = [x for x in var2domain if x < var1domain]
+            else:
+                print("Error")
+        else:
+            print("Error")
 
     return solution, updatedDomain
 
