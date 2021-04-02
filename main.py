@@ -23,8 +23,13 @@ def Variables(file):
 
 # get conditions from a file
 # returns a dictionary with variables as keys and conditions as values stored in a list
-def Conditions(file):
+def Conditions(file, variablesfile):
     conditions = {}  # key: variable(str), value: conditions(str)
+
+    variables = Variables(variablesfile)
+    for variable in variables:
+        conditions[variable] = []
+
     with open(file) as f:
         for line in f:  # for each condition in file
             var1 = line[0]  # get first variable
@@ -46,7 +51,9 @@ def chooseVariable(variables, conditions):
     order = []
     variable = {'Variable': ['NA', 999, [], 999, []]}  # [variable name, possible values, constraints]
     for key in variables:
+
         if len(variables[key]) < variable['Variable'][1]:  # find variable with fewest legal values
+
             variable['Variable'] = [key, len(variables[key]), variables[key], len(conditions[key]), conditions[key]]
 
 
@@ -66,10 +73,10 @@ def chooseVariable(variables, conditions):
     return variable['Variable'][0]  # returns variable name as  string
 
 
-def chooseValue(varName, variables, conditions):
+def chooseValue(varName, domain, conditions):
     legalValue = {}
-    varDomain = variables[varName]
-
+    varDomain = domain[varName]
+    updatedDomain = domain
     for value in varDomain:
         legalValue[value] = 0
 
@@ -77,8 +84,8 @@ def chooseValue(varName, variables, conditions):
             var1 = condition[0]
             var2 = condition[4]
             operation = condition[2]
-            var1domain = variables[var1]
-            var2domain = variables[var2]
+            var1domain = domain[var1]
+            var2domain = domain[var2]
 
             if var1 == varName:  # if var1 is the variable we are finding the number for
                 var2domainSize = 0
@@ -88,19 +95,21 @@ def chooseValue(varName, variables, conditions):
                     if var2domainSizeCurrent > var2domainSize:
                         var2domainSize = var2domainSizeCurrent
                         legalValue[value] = legalValue[value] + var2domainSize
+                        updatedDomain[var2] = [y for y in var2domain if y < value]
 
                 elif operation == '=':
                     var2domainSizeCurrent = len([x for x in var2domain if x == value])
                     if var2domainSizeCurrent > var2domainSize:
                         var2domainSize = var2domainSizeCurrent
                         legalValue[value] = legalValue[value] + var2domainSize
+                        updatedDomain[var2] = [y for y in var2domain if y == value]
 
                 elif operation == '<':
                     var2domainSizeCurrent = len([x for x in var2domain if x > value])
                     if var2domainSizeCurrent > var2domainSize:
                         var2domainSize = var2domainSizeCurrent
                         legalValue[value] = legalValue[value] + var2domainSize
-
+                        updatedDomain[var2] = [y for y in var2domain if y > value]
                 else:
                     print("Error")
 
@@ -112,26 +121,47 @@ def chooseValue(varName, variables, conditions):
                     if var1domainSizeCurrent > var1domainSize:
                         var1domainSize = var1domainSizeCurrent
                         legalValue[value] = legalValue[value] + var1domainSize
-
+                        updatedDomain[var1] = [y for y in var1domain if y > value]
                 elif operation == '=':
                     var1domainSizeCurrent = len([x for x in var1domain if x == value])
                     if var1domainSizeCurrent > var1domainSize:
                         var1domainSize = var1domainSizeCurrent
                         legalValue[value] = legalValue[value] + var1domainSize
-
+                        updatedDomain[var1] = [y for y in var1domain if y == value]
                 elif operation == '<':
                     var1domainSizeCurrent = len([x for x in var1domain if x < value])
                     if var1domainSizeCurrent > var1domainSize:
                         var1domainSize = var1domainSizeCurrent
                         legalValue[value] = legalValue[value] + var1domainSize
+                        updatedDomain[var1] = [y for y in var1domain if y < value]
                 else:
                     print("Error")
 
             else:
                 print("Error")
 
-    # for legal
-    return legalValue
+    if not conditions[varName]:  # if there are no constraints for given variable
+        legalValue[(min(varDomain))] = 1  # get the smallest
+
+    highestnum = 0
+    solution = 0
+    for value in legalValue:
+        currentnum = legalValue[value]
+        currentval = value
+        updatedDomain[varName] = [solution]
+
+        if currentnum > highestnum:
+            highestnum = currentnum
+            solution = currentval
+            updatedDomain[varName] = [solution]
+
+        elif currentnum == highestnum:
+            if currentval < solution:
+                highestnum = currentnum
+                solution = currentval
+                updatedDomain[varName] = [solution]
+
+    return solution, updatedDomain
 
 
 def CSP(variables, conditions, mode):
@@ -157,10 +187,15 @@ def main():
     else:
         raise ValueError("Third argument can only be 'none': backtracking, or 'fc': forward checking.")
 
-    CSP(Variables(file1), Conditions(file2), mode)
-    most_constrained_variable = chooseVariable(Variables(file1), Conditions(file2))
-    print("Most constrained variable: ", most_constrained_variable)
-    print(chooseValue('C', Variables(file1), Conditions(file2)))
+    domain = Variables(file1)
+    conditions = Conditions(file2, file1)
+    while domain:
+        most_constrained_variable = chooseVariable(Variables(file1), Conditions(file2, file1))
+        most_constr_var_value = (chooseValue(most_constrained_variable, Variables(file1), Conditions(file2, file1))[0])
+        updatedDomain = (chooseValue(most_constrained_variable, Variables(file1), Conditions(file2, file1))[1])
+        print("1. {}={},".format(most_constrained_variable, most_constr_var_value))
+        print(updatedDomain)
+        domain = 0
 
 
 main()
