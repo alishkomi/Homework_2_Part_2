@@ -214,12 +214,23 @@ def main():
     domain = Variables(file1)
     conditions = Conditions(file2, file1)
     while domain:
-        most_constrained_variable = chooseVariable(Variables(file1), Conditions(file2, file1))
+        variables = Variables(file1)
+        order = []
+        while variables:
+            most_constrained_variable = chooseVariable(variables, Conditions(file2, file1))
+            variables.pop(most_constrained_variable)
+            order.append(most_constrained_variable)
+        print(order)
+        print(variables)
+
         most_constr_var_value = (chooseValue(most_constrained_variable, Variables(file1), Conditions(file2, file1))[0])
         updatedDomain = (chooseValue(most_constrained_variable, Variables(file1), Conditions(file2, file1))[1])
         print("1. {}={},".format(most_constrained_variable, most_constr_var_value))
-        print(updatedDomain)
-        domain = 0
+
+        for key in updatedDomain:
+            if not updatedDomain[key]:
+                domain = 0
+                print("failure")
 
 
 main()
