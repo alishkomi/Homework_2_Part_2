@@ -172,14 +172,15 @@ def chooseValue(varName, domain, conditions):
             else:
                 print("Error")
         elif var2 == varName:
-            var1domain = updatedDomain[varName][0]
-            var2domain = domain[var2]
+            var2domain = updatedDomain[varName][0]
+            var1domain = domain[var1]
+
             if operation == '>':  # if condition is var 1 > var 2
-                updatedDomain[var1] = [x for x in var2domain if x > var1domain]
+                updatedDomain[var1] = [x for x in var1domain if x > var2domain]
             elif operation == '=':
-                updatedDomain[var1] = [x for x in var2domain if x == var1domain]
+                updatedDomain[var1] = [x for x in var1domain if x == var2domain]
             elif operation == '<':
-                updatedDomain[var1] = [x for x in var2domain if x < var1domain]
+                updatedDomain[var1] = [x for x in var1domain if x < var2domain]
             else:
                 print("Error")
         else:
@@ -213,24 +214,39 @@ def main():
 
     domain = Variables(file1)
     conditions = Conditions(file2, file1)
-    while domain:
-        variables = Variables(file1)
-        order = []
-        while variables:
-            most_constrained_variable = chooseVariable(variables, Conditions(file2, file1))
-            variables.pop(most_constrained_variable)
-            order.append(most_constrained_variable)
-        print(order)
-        print(variables)
 
-        most_constr_var_value = (chooseValue(most_constrained_variable, Variables(file1), Conditions(file2, file1))[0])
-        updatedDomain = (chooseValue(most_constrained_variable, Variables(file1), Conditions(file2, file1))[1])
-        print("1. {}={},".format(most_constrained_variable, most_constr_var_value))
+    variables = Variables(file1)
+    order = []
+    while variables:
+        variable = chooseVariable(variables, Conditions(file2, file1))
+        variables.pop(variable)
+        order.append(variable)
+    print(order)
 
-        for key in updatedDomain:
-            if not updatedDomain[key]:
-                domain = 0
-                print("failure")
+
+    fc = Variables(file1)
+    for var in order:
+        value = chooseValue(var, fc, Conditions(file2, file1))
+        print(var, value)
+        domains = chooseValue(var, Variables(file1), Conditions(file2, file1))[1]
+        for key in domains:
+            if not domains[key]:
+                print("Failure")
+                break
+
+
+
+    # while domain:
+    #
+    #     most_constrained_variable = chooseVariable(Variables(file1), Conditions(file2, file1))
+    #     most_constr_var_value = (chooseValue(most_constrained_variable, Variables(file1), Conditions(file2, file1))[0])
+    #     updatedDomain = (chooseValue(most_constrained_variable, Variables(file1), Conditions(file2, file1))[1])
+    #     print("1. {}={},".format(most_constrained_variable, most_constr_var_value))
+    #     print(updatedDomain)
+    #     for key in updatedDomain:
+    #         if not updatedDomain[key]:
+    #             domain = 0
+    #             print("failure")
 
 
 main()
