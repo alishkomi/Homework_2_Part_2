@@ -216,26 +216,42 @@ def main():
     else:
         raise ValueError("Third argument can only be 'none': backtracking, or 'fc': forward checking.")
 
-    start_vars = Variables(file1)
-    order = []
-    while start_vars:
-        variable = chooseVariable(start_vars, Conditions(file2, file1))
-        start_vars.pop(variable)
-        order.append(variable)
+    if mode == 'none':
+        start_vars = Variables(file1)
+        order = []
+        while start_vars:
+            variable = chooseVariable(start_vars, Conditions(file2, file1))
+            start_vars.pop(variable)
+            order.append(variable)
 
-    var_domains = Variables(file1)
-    conditions = Conditions(file2, file1)
-    counter = 1
-    print("{}. ".format(counter), sep='', end='')
-    for var in order:
-        for key in chooseValue(var, Variables(file1), Conditions(file2, file1))[1]:
-            tmp_domains = chooseValue(var, Variables(file1), Conditions(file2, file1))[1]
-            if not tmp_domains[key]:
-                print("failure")
+        var_domains = Variables(file1)
+        conditions = Conditions(file2, file1)
+        counter = 1
+        print("{}. ".format(counter), sep='', end='')
 
-        if var == order[-1]:  # solution
-            print("{}={}".format(var, chooseValue(var, var_domains, conditions)[0]), sep='', end=" solution")
-        else:
-            print("{}={}".format(var, chooseValue(var, var_domains, conditions)[0]), sep='', end=", ")
-        counter += 1
+
+        # for var in order:
+        #
+        #     for key in chooseValue(var, Variables(file1), Conditions(file2, file1))[1]:
+        #         print("{}. ".format(counter), sep='', end='')
+        #         tmp_domains = chooseValue(var, Variables(file1), Conditions(file2, file1))[1]
+        #
+        #         if var == order[-1]:  # solution
+        #             print("{}={}".format(var, chooseValue(var, Variables(file1), Conditions(file2, file1))[0]), sep='', end=" failure\n")
+        #         else:
+        #             print("{}={}".format(var, chooseValue(var, Variables(file1), Conditions(file2, file1))[0]), sep='', end=", ")
+        #
+        #         if not tmp_domains[key]:
+        #             print("failure")
+        #     counter += 1
+
+        print("{}. ".format(counter), sep='', end='')
+        for var in order:
+            if var == order[-1]:  # solution
+                print("{}={}".format(var, chooseValue(var, var_domains, conditions)[0]), sep='', end=" solution")
+            else:
+                print("{}={}".format(var, chooseValue(var, var_domains, conditions)[0]), sep='', end=", ")
+            counter += 1
+    else:
+
 main()
